@@ -1,0 +1,15 @@
+{{<layout.mustache}}
+  {{$title}}Dummy{{/title}}
+  {{$body}}
+    <div class="jumbotron">
+      <h1>
+        <img src="{{ctx.base}}images/logo.png"/>
+        <a href="https://github.com/dacr/finatra-dummy">Finatra dummy</a>
+      </h1>
+
+    <p align="right">
+      release <b><span id="version">{{version}}</span></b>({{buildate}})
+    </p>
+
+  {{/body}}
+{{/layout.mustache}}
