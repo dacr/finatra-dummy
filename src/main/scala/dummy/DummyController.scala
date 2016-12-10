@@ -43,7 +43,18 @@ class DummyController extends Controller {
   }
 
   get(ctx.base) { request: Request => home(request) }
+
+  // -------------------------------------------------------------------------------------------------
   
+  post("/file-upload") { request: Request =>
+    println(request)
+    request.multipart match {
+      case Some(m) =>
+        println(m.files)
+        println(m.attributes)
+      case None =>
+    }
+  }
 
   // -------------------------------------------------------------------------------------------------  
   for { res <- List("js", "css", "images") } {
