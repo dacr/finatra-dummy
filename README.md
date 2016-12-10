@@ -11,6 +11,16 @@ export PRIMESUI_CACHE=true
 sbt run
 ```
 
+## run in place in developer mode
+As soon as something changes, finatra restarts...
+
+```
+sbt '~re-start'
+sbt '~re-start -maxRequestSize=500.megabytes'
+```
+
+ps : brought to us thanks to https://github.com/spray/sbt-revolver sbt plugin
+
 ## Packaging and quick in-place run
 
 ```

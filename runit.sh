@@ -47,6 +47,7 @@ FINATRA_OPTS=$FINATRA_OPTS" -com.twitter.finagle.exp.scheduler=forkjoin:8"
 #FINATRA_OPTS=$FINATRA_OPTS" -com.twitter.finagle.exp.scheduler=bridged:4"
 #FINATRA_OPTS=$FINATRA_OPTS" -com.twitter.finagle.exp.scheduler=local"
 #FINATRA_OPTS=$FINATRA_OPTS" -com.twitter.finagle.exp.scheduler=lifo"
+FINATRA_OPTS=$FINATRA_OPTS" -com.twitter.finatra.config.maxRequestSize=500.megabytes"
 FINATRA_OPTS=$FINATRA_OPTS" "
 
 java $JAVA_OPTS -jar target/scala-2.11/dummy-finatra-1.0.jar $FINATRA_OPTS $*

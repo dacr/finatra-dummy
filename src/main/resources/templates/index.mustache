@@ -11,5 +11,23 @@
       release <b><span id="version">{{version}}</span></b>({{buildate}})
     </p>
 
+    <script src="{{ctx.base}}js/dropzone.js"></script>
+    <script>
+      Dropzone.options.customDropzone = {
+        paramName: "thefile", // The name that will be used to transfer the file
+        maxFilesize: 500 // MB
+      }
+      //Dropzone.options.customDropzone = false;
+      Dropzone.autoDiscover = true;
+    </script>
+
+    <form action="{{ctx.base}}file-upload"
+          class="dropzone"
+          id="custom-dropzone"
+          style="background-color:grey;foreground:blue"
+          >          
+    </form>
+
+    
   {{/body}}
 {{/layout.mustache}}
