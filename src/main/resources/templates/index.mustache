@@ -10,38 +10,58 @@
     <p align="right">
       release <b><span id="version">{{version}}</span></b>({{buildate}})
     </p>
-    <p><a href="{{ctx.base}}">home sweet home</a> <i>(ctx.base = "{{ctx.base}}")</i></p>
-    <ul>
-      <li>path               : {{info.path}}</li>
-      <li>uri                : {{info.uri}}</li> 
-      <li>location           : {{info.location}}</li>
-      <li>referer            : <a href="{{info.referer}}">{{info.referer}}</a></li>
-      <li>userAgent          : {{info.userAgent}}</li>
-      <li>host               : {{info.host}}</li>
-      <li>pathUrl            : {{info.pathUrl}}</li>
-      <li>remoteHost         : {{info.remoteHost}}</li>
-      <li>remoteAddr         : {{info.remoteAddress}}</li>
-      <li>remotePort         : {{info.remotePort}}</li>
-      <li>xForwardedFor      : {{info.xForwardedFor}}</li>
-      <li>expires            : {{info.expires}}</li>
+    
+    
+    <ul class="nav nav-pills">
+      <li class="active"><a data-toggle="tab" href="#infos">Request Infos</a></li>
+      <li ><a data-toggle="tab" href="#fileupload">File upload</a></li>
     </ul>
+    
+    <div class="tab-content">
+    
+      <!-- ------------------------------------------------------------------------------------------- -->
+      <div id="infos" class="tab-pane fade in active">
+        <p><a href="{{ctx.base}}">home sweet home</a> <i>(ctx.base = "{{ctx.base}}")</i></p>
+        <ul class="list-group">
+          <li class="list-group-item">path               : {{info.path}}</li>
+          <li class="list-group-item">uri                : {{info.uri}}</li> 
+          <li class="list-group-item">location           : {{info.location}}</li>
+          <li class="list-group-item">referer            : <a href="{{info.referer}}">{{info.referer}}</a></li>
+          <li class="list-group-item">userAgent          : {{info.userAgent}}</li>
+          <li class="list-group-item">host               : {{info.host}}</li>
+          <li class="list-group-item">pathUrl            : {{info.pathUrl}}</li>
+          <li class="list-group-item">remoteHost         : {{info.remoteHost}}</li>
+          <li class="list-group-item">remoteAddr         : {{info.remoteAddress}}</li>
+          <li class="list-group-item">remotePort         : {{info.remotePort}}</li>
+          <li class="list-group-item">xForwardedFor      : {{info.xForwardedFor}}</li>
+          <li class="list-group-item">expires            : {{info.expires}}</li>
+        </ul>
+      </div>
+      <!-- ------------------------------------------------------------------------------------------- -->
+      <div id="fileupload" class="tab-pane fade">
+        <script src="{{ctx.base}}js/dropzone.js"></script>
+        <script>
+          Dropzone.options.customDropzone = {
+            paramName: "thefile", // The name that will be used to transfer the file
+            maxFilesize: 500 // MB
+          }
+          //Dropzone.options.customDropzone = false;
+          Dropzone.autoDiscover = true;
+        </script>
+    
+        <form action="{{ctx.base}}file-upload"
+              class="dropzone"
+              id="custom-dropzone"
+              style="background-color:grey;foreground:blue"
+              >          
+        </form>
+      </div>
+      <!-- ------------------------------------------------------------------------------------------- -->
+    </div>
+    
+    
 
-    <script src="{{ctx.base}}js/dropzone.js"></script>
-    <script>
-      Dropzone.options.customDropzone = {
-        paramName: "thefile", // The name that will be used to transfer the file
-        maxFilesize: 500 // MB
-      }
-      //Dropzone.options.customDropzone = false;
-      Dropzone.autoDiscover = true;
-    </script>
 
-    <form action="{{ctx.base}}file-upload"
-          class="dropzone"
-          id="custom-dropzone"
-          style="background-color:grey;foreground:blue"
-          >          
-    </form>
 
     
   {{/body}}
