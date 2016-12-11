@@ -10,6 +10,21 @@
     <p align="right">
       release <b><span id="version">{{version}}</span></b>({{buildate}})
     </p>
+    <p><a href="{{ctx.base}}">home sweet home</a> <i>(ctx.base = "{{ctx.base}}")</i></p>
+    <ul>
+      <li>path               : {{info.path}}</li>
+      <li>uri                : {{info.uri}}</li> 
+      <li>location           : {{info.location}}</li>
+      <li>referer            : <a href="{{info.referer}}">{{info.referer}}</a></li>
+      <li>userAgent          : {{info.userAgent}}</li>
+      <li>host               : {{info.host}}</li>
+      <li>pathUrl            : {{info.pathUrl}}</li>
+      <li>remoteHost         : {{info.remoteHost}}</li>
+      <li>remoteAddr         : {{info.remoteAddress}}</li>
+      <li>remotePort         : {{info.remotePort}}</li>
+      <li>xForwardedFor      : {{info.xForwardedFor}}</li>
+      <li>expires            : {{info.expires}}</li>
+    </ul>
 
     <script src="{{ctx.base}}js/dropzone.js"></script>
     <script>

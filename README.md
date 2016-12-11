@@ -34,11 +34,11 @@ sbt assembly
 
 - Use java 8
 - System tuning :
-    ```
-    sysctl -w net.ipv4.ip_local_port_range="5000 65535"
-    sysctl -w net.ipv4.tcp_tw_reuse=0
-    sysctl -w net.ipv4.tcp_tw_recycle=0
-    ```
+  ```
+  sysctl -w net.ipv4.ip_local_port_range="5000 65535"
+  sysctl -w net.ipv4.tcp_tw_reuse=0
+  sysctl -w net.ipv4.tcp_tw_recycle=0
+  ```
 
 
 ## For quick load test using primesui-loadtests project

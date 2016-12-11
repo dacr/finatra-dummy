@@ -7,15 +7,54 @@ import com.twitter.finatra.request.{ QueryParam, RouteParam }
 import com.twitter.finatra.response.Mustache
 import com.twitter.finatra.http.request.RequestUtils
 
+import java.net._
 
-case class DummyContext(base: String)
+case class DummyContext(
+    base: String
+    )
 
 @Mustache("index")
 case class IndexView(
   ctx: DummyContext,
+  info:RequestInfo,
   version: String,
   buildate: String
 )
+
+
+case class RequestInfo(
+    path:String,
+    uri:String,
+    location:Option[String],
+    referer:Option[String],
+    userAgent:Option[String],
+    host:Option[String],
+    pathUrl:String,
+    xForwardedFor:Option[String],
+    remoteHost:String,
+    remoteAddress:InetAddress,
+    remotePort:Int,
+    expires:Option[String]
+    )
+object RequestInfo{
+  def apply(rq:Request):RequestInfo = {
+    RequestInfo(
+        path = rq.path,
+        uri = rq.uri,
+        location = rq.location,
+        userAgent = rq.userAgent.map(_.take(20)+"..."),
+        referer = rq.referer,
+        host = rq.host,
+        pathUrl = RequestUtils.pathUrl(rq),
+        xForwardedFor = rq.xForwardedFor,
+        remoteHost = rq.remoteHost,
+        remoteAddress = rq.remoteAddress,
+        remotePort = rq.remotePort,
+        expires = rq.expires
+        )
+  }
+}
+    
 
 
 class DummyController extends Controller {
@@ -35,9 +74,9 @@ class DummyController extends Controller {
 
   // -------------------------------------------------------------------------------------------------
   def home(request: Request) = {
-    //dumpInfo(request)
     IndexView(
       ctx = ctx,
+      info = RequestInfo(request),
       version = MetaInfo.version,
       buildate = MetaInfo.buildate)
   }
@@ -47,11 +86,11 @@ class DummyController extends Controller {
   // -------------------------------------------------------------------------------------------------
   
   post("/file-upload") { request: Request =>
-    println(request)
+    info(request)
     request.multipart match {
       case Some(m) =>
-        println(m.files)
-        println(m.attributes)
+        info(m.files)
+        info(m.attributes)
       case None =>
     }
   }
