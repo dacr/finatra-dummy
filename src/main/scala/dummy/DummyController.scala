@@ -81,11 +81,11 @@ class DummyController extends Controller {
       buildate = MetaInfo.buildate)
   }
 
-  get(ctx.base) { request: Request => home(request) }
+  get(s"$base") { request: Request => home(request) }
 
   // -------------------------------------------------------------------------------------------------
   
-  post("/file-upload") { request: Request =>
+  post(s"${base}file-upload") { request: Request =>
     info(request)
     request.multipart match {
       case Some(m) =>
@@ -97,7 +97,7 @@ class DummyController extends Controller {
 
   // -------------------------------------------------------------------------------------------------  
   for { res <- List("js", "css", "images") } {
-    get(s"$base$res/:*") { request: Request =>
+    get(s"${base}$res/:*") { request: Request =>
       response.ok.file(s"/static/$res/" + request.params("*"))
     }
   }
