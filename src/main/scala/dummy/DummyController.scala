@@ -59,8 +59,25 @@ object RequestInfo{
 
 class DummyController extends Controller {
 
-  val ctx = DummyContext("/")
+  def base2use:String = {
+    import scala.util.Properties._
+    val key="DUMMY_BASE"
+    val default="/"
+    propOrNone(key)
+      .orElse(envOrNone(key))
+      .getOrElse(default)
+      .replaceAll("/+$", "")
+      .replaceAll("^/+", "")
+      .replaceAll("/{2,}", "/")
+      .trim match {
+      case "" => "/"
+      case s => s"/$s/"
+    }
+  }
+  
+  val ctx = DummyContext(base2use)
   import ctx.base
+  logger.info(s"Using context base $base")
 
   def dumpInfo(rq: Request) {
     info("path=" + rq.path)
