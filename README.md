@@ -1,13 +1,11 @@
-# primesui-finatra
+# finatra-dummy
 
 ## quick starts
 
-- `export PRIMESUI_CACHE=true` to enable second level cache
 - `sbt run` starts the server which listens on `0.0.0.0:8888`
 
 ```
 git clone 
-export PRIMESUI_CACHE=true
 sbt run
 ```
 
@@ -40,19 +38,4 @@ sbt assembly
   sysctl -w net.ipv4.tcp_tw_recycle=0
   ```
 
-
-## For quick load test using primesui-loadtests project
-
-```
-git clone https://github.com/dacr/primes-scalatra-app-loadtests.git
-cd primes-scalatra-app-loadtests
-export PRIMESUI_LOADTEST_DURATION=3
-export PRIMESUI_URL=http://127.0.0.1:8888/
-export PRIMESUI_VUS=25000
-sbt test
-```
-
-## Results hints
-
-with good hardware => ~34000 hit/s
 
