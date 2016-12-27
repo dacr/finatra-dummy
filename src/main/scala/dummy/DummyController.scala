@@ -62,7 +62,7 @@ class DummyController extends Controller {
   def base2use:String = {
     import scala.util.Properties._
     val key="DUMMY_BASE"
-    val default="/"
+    val default=""
     propOrNone(key)
       .orElse(envOrNone(key))
       .getOrElse(default)
@@ -70,8 +70,8 @@ class DummyController extends Controller {
       .replaceAll("^/+", "")
       .replaceAll("/{2,}", "/")
       .trim match {
-      case "" => "/"
-      case s => s"/$s/"
+      case "" => ""
+      case s => s"/$s"
     }
   }
   
@@ -98,11 +98,12 @@ class DummyController extends Controller {
       buildate = MetaInfo.buildate)
   }
 
+  get(s"$base/") { request: Request => home(request) }
   get(s"$base") { request: Request => home(request) }
 
   // -------------------------------------------------------------------------------------------------
   
-  post(s"${base}file-upload") { request: Request =>
+  post(s"$base/file-upload") { request: Request =>
     info(request)
     request.multipart match {
       case Some(m) =>
@@ -112,9 +113,16 @@ class DummyController extends Controller {
     }
   }
 
+  // -------------------------------------------------------------------------------------------------
+  //case class Cell(time:Long, value:Double)
+  case class Series(name:String, data:List[Tuple2[Long,Double]])
+  get(s"$base/myseries") { request:Request =>
+    Series("x", List(1L->2d, 2L->4d, 3L->3d ) )
+  }
+  
   // -------------------------------------------------------------------------------------------------  
   for { res <- List("js", "css", "images") } {
-    get(s"${base}$res/:*") { request: Request =>
+    get(s"$base/$res/:*") { request: Request =>
       response.ok.file(s"/static/$res/" + request.params("*"))
     }
   }

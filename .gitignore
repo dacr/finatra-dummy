@@ -3,6 +3,8 @@
 *.log
 .cache-main
 access.log*
+Highcharts-*
+
 # sbt specific
 .cache
 .history
