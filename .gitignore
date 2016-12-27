@@ -4,6 +4,8 @@
 .cache-main
 access.log*
 Highcharts-*
+Highstock-*
+.ensime
 
 # sbt specific
 .cache

@@ -116,8 +116,12 @@ class DummyController extends Controller {
   // -------------------------------------------------------------------------------------------------
   //case class Cell(time:Long, value:Double)
   case class Series(name:String, data:List[Tuple2[Long,Double]])
+  
   get(s"$base/myseries") { request:Request =>
-    Series("x", List(1L->2d, 2L->4d, 3L->3d ) )
+    val now = System.currentTimeMillis()
+
+    val sampleData=1.to(1000).map(i=> now+i*1000 -> scala.math.random*10d).toList
+    Series("random-data", sampleData )
   }
   
   // -------------------------------------------------------------------------------------------------  

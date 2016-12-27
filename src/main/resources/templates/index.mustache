@@ -16,6 +16,7 @@
       <li class="active"><a data-toggle="tab" href="#infos">Request Infos</a></li>
       <li><a data-toggle="tab" href="#fileupload">File upload</a></li>
       <li><a data-toggle="tab" href="#chartwithmyseries">Time series Chart</a></li>
+      <li><a data-toggle="tab" href="#elk2js">Processing ELK data</a>
     </ul>
     
     <div class="tab-content">
@@ -59,20 +60,22 @@
       </div>
       <!-- ------------------------------------------------------------------------------------------- -->      
       <div id="chartwithmyseries" class="tab-pane fade">
-        <script src="{{ctx.base}}/js/libs/highcharts/highcharts.js"></script>
-        <div id="mychart" style="min-width: 600px; height: 400px; margin: 0 auto"></div>
+        <!-- script src="{{ctx.base}}/js/libs/highcharts/highcharts.js"></script-->
+        <script src="{{ctx.base}}/js/libs/highstock/highstock.js"></script>
+        <div id="mychart" style="height: 400px; margin: 0 auto"></div>
         <script>
-          //var ctx = document.getElementById("myChart")
 
-          var chart = Highcharts.chart('mychart', {
+          var chart = Highcharts.stockChart('mychart', {
               chart: {
-                  type: 'spline'
+                  type: 'line',
+                  zoomType: 'x'
+              },
+              rangeSelector: {
+                  allButtonsEnabled: true,
+                  selected: 2
               },
               title: {
-                  text: 'Snow depth at Vikjafjellet, Norway'
-              },
-              subtitle: {
-                  text: 'Irregular time data in Highcharts JS'
+                  text: 'Garbage collector Trends'
               },
               xAxis: {
                   type: 'datetime',
@@ -86,7 +89,7 @@
               },
               yAxis: {
                   title: {
-                      text: 'Snow depth (m)'
+                      text: 'Duration (ms)'
                   },
                   min: 0
               },
@@ -94,32 +97,29 @@
                   headerFormat: '<b>{series.name}</b><br>',
                   pointFormat: '{point.x:%e. %b}: {point.y:.2f} m'
               },
-      
               plotOptions: {
                   spline: {
                       marker: {
                           enabled: true
                       }
                   }
-              }      
+              }
           });
 
           
-          var xhr = new XMLHttpRequest();
-          xhr.onreadystatechange =  () => {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-              const resp = xhr.responseText
-              console.log(resp)
-              console.log(chart)
-              chart.addSeries(resp)
-              $(this).attr('disabled', true);
-            }
-          }
-          xhr.open('GET', '{{ctx.base}}/myseries')
-          xhr.send(null)
+          $.ajax({url: "{{ctx.base}}/myseries",cache: false,type:'GET',dataType:"json"})
+        	   .done(function( resp ) {
+        		   //var chart = $('#mychart')
+        	     console.log(resp)
+        	     console.log(chart)
+        	     chart.addSeries(resp)
+        	   });
           
         </script>
         
+      </div>
+      <!-- ------------------------------------------------------------------------------------------- -->
+      <div id="elk2js" class="tab-pane fade">
       </div>
       <!-- ------------------------------------------------------------------------------------------- -->
       
