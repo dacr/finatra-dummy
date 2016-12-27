@@ -5,7 +5,7 @@
 - `sbt run` starts the server which listens on `0.0.0.0:8888`
 
 ```
-git clone 
+git clone https://github.com/dacr/finatra-dummy.git
 sbt run
 ```
 
