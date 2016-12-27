@@ -36,6 +36,13 @@ sbt assembly
 
 `./runit.sh -help` to view options.
 
+
+## Some requirements
+
+```
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 elasticsearch
+```
+
 ## tuning to achieve best results
 
 - Use java 8
@@ -45,3 +52,5 @@ sbt assembly
   sysctl -w net.ipv4.tcp_tw_reuse=0
   sysctl -w net.ipv4.tcp_tw_recycle=0
   ```
+
+ 
