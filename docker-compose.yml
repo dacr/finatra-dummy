@@ -1,0 +1,11 @@
+
+mylastic:
+  image : elasticsearch:5-alpine
+  environment :
+    - ES_USE_GC_LOGGING=true
+  volumes :
+    - ./esdata:/usr/share/elasticsearch/data
+  ports:
+    - 127.0.0.1:9200:9200
+    - 127.0.0.1:9300:9300
+
