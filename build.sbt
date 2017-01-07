@@ -69,6 +69,7 @@ javaOptions in run := Seq(
 
 libraryDependencies ++= Seq(
   "com.twitter"            %% "finatra-http"                        % "2.6.0",
+  "com.twitter"            %% "bijection-util"                      % "0.9.4",
   "com.sksamuel.elastic4s" %% "elastic4s-streams"                   % "5.1.4",
   "ch.qos.logback"         % "logback-classic"                      % "1.1.7",
   "org.codehaus.janino"    % "janino"                               % "2.7.8" // Allow logback config file conditionals
