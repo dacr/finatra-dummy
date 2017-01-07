@@ -5,29 +5,45 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.analyzers._
-import scala.concurrent.Future
+import scala.util.{Success,Failure,Try}
+
+import com.twitter.bijection.Conversion._
+import com.twitter.bijection.twitter_util.UtilBijections.twitter2ScalaFuture
+import com.twitter.util.{Future => TwitterFuture}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future => ScalaFuture}
+
+
 
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
 
 
 
-object Persistency {
+class Persistency {
   val logger=org.slf4j.LoggerFactory.getLogger(getClass)
   import scala.concurrent.ExecutionContext.Implicits.global
   
   val indexName=s"dummy-global"
   
-  def _deleteIndex(client:ElasticClient):Future[DeleteIndexResponse] = {
+  def _deleteIndex(client:ElasticClient):TwitterFuture[DeleteIndexResponse] = {
     client.execute{deleteIndex(indexName)}
-  }
-  def _createIndex(client:ElasticClient):Future[CreateIndexResponse] = {
+  }.as[TwitterFuture[DeleteIndexResponse]]
+  
+  def _createIndex(client:ElasticClient):TwitterFuture[CreateIndexResponse] = {
     client.execute{
       createIndex(indexName) mappings {
         mapping("params") as Seq(
+            textField("message")
             )
+        mapping("cells") as Seq(
+            keywordField("name"),
+            dateField("time"),
+            doubleField("value")
+        )
       }
-    }
+    }.as[TwitterFuture[CreateIndexResponse]]
   }
   
   def initializeIfNeeded(client:ElasticClient):Unit = {
@@ -47,7 +63,7 @@ object Persistency {
   lazy val client = {
     import scala.util.Properties._
     val elkUriConfigKey="ELK_URI"
-    val defaultUri = "http://localhost:9300/"
+    val defaultUri = "elasticsearch://localhost:9300"
     val uri =
       envOrNone(elkUriConfigKey)
         .orElse(propOrNone(elkUriConfigKey))
@@ -57,5 +73,17 @@ object Persistency {
     val client = ElasticClient.transport(elasticUri)
     initializeIfNeeded(client)    
     client
+  }
+  
+  def getMessage:TwitterFuture[String] = {
+//    client
+//      .execute {get(1).from(s"$indexName/params")}
+//      .andThen {case Failure(err) => logger.error(s"couldn't get params", err)}
+//      .map(_.sourceField("message").toString)
+    TwitterFuture {"truc"}
+  }
+  
+  def setMessage(msg:String) = client.execute {
+    update(1).in(s"$indexName/params").docAsUpsert("message" -> msg)
   }
 }
