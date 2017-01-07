@@ -7,6 +7,13 @@ import com.twitter.finatra.request.{ QueryParam, RouteParam }
 import com.twitter.finatra.response.Mustache
 import com.twitter.finatra.http.request.RequestUtils
 
+import com.twitter.bijection.Conversion._
+import com.twitter.bijection.twitter_util.UtilBijections.twitter2ScalaFuture
+import com.twitter.util.{Future => TwitterFuture}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future => ScalaFuture}
+
 import java.net._
 
 case class DummyContext(
@@ -19,6 +26,13 @@ case class IndexView(
   info:RequestInfo,
   version: String,
   buildate: String
+)
+
+
+@Mustache("elkpart")
+case class ElkPartView(
+  ctx: DummyContext,
+  message: String
 )
 
 
@@ -58,7 +72,8 @@ object RequestInfo{
 
 
 class DummyController extends Controller {
-
+  import scala.concurrent.ExecutionContext.Implicits.global
+    
   def base2use:String = {
     import scala.util.Properties._
     val key="DUMMY_BASE"
@@ -78,6 +93,7 @@ class DummyController extends Controller {
   val ctx = DummyContext(base2use)
   import ctx.base
   logger.info(s"Using context base $base")
+  val pers = new Persistency
 
   def dumpInfo(rq: Request) {
     info("path=" + rq.path)
@@ -125,8 +141,16 @@ class DummyController extends Controller {
   }
   
   // -------------------------------------------------------------------------------------------------
-  
-  
+
+  get(s"$base/elkpart") {request:Request => 
+    pers.getMessage map { msg:String =>
+      ElkPartView(ctx, msg)
+    }
+  }
+
+  post(s"$base/message") {request:Request => 
+    pers.setMessage(request.getParam("message", "???"))
+  }
   
   // -------------------------------------------------------------------------------------------------  
   for { res <- List("js", "css", "images") } {

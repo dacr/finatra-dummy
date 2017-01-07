@@ -120,6 +120,11 @@
       </div>
       <!-- ------------------------------------------------------------------------------------------- -->
       <div id="elk2js" class="tab-pane fade">
+        <div id="elk2js_content"></div>
+        <script>
+        $.ajax({url: "{{ctxbase}}/elkpart",cache: false,type:'GET',dataType:"html"})
+          .done(function( resp ) { $('#elk2js_content').html(resp) });
+        </script>
       </div>
       <!-- ------------------------------------------------------------------------------------------- -->
       
