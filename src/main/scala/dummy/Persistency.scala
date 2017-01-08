@@ -49,13 +49,37 @@ class Persistency {
     }
   }
   
-  def _populate(client:ElasticClient):ScalaFuture[RichBulkResponse] = {
+  def _populate(client:ElasticClient):ScalaFuture[List[RichBulkResponse]] = {
     logger.info(s"populating $indexName")
-    client.execute{
+    val params = client.execute{
       bulk {
         indexInto(indexName / "params").fields("message" -> "default - refreshed").id(1)
       }
     }
+    val series = _populateFakeSeries(client)
+    ScalaFuture.sequence(params::series)
+  }
+  def _populateFakeSeries(client:ElasticClient) = {
+    def now=System.currentTimeMillis()
+    val sampleData=1.to(7200).map(i=> now+i*1000 -> scala.math.random*10d)
+    val bulks = for {
+      grouped <- sampleData.grouped(500).toList
+    } yield {
+      client.execute{
+        bulk {
+          for {
+            (time, value) <- grouped
+          } yield {
+          indexInto(indexName / "cells").fields(
+                "name"->"x",
+                "time"->time,
+                "value"->value
+              )
+          }
+        }
+      }
+    }
+    bulks
   }
   
   def initializeIfNeeded(client:ElasticClient) = {

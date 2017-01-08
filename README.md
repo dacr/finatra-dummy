@@ -63,6 +63,8 @@ docker run --name elasticsearch -p 9200:9200 -p 9300:9300 elasticsearch
     - conversion is quite easy thanks to [twitter bijection](https://github.com/twitter/bijection/blob/develop/README.md)
 * some usefull elasticsearch command :
   + `curl -s 'http://localhost:9200/_search?q=*' | jq`
-  + 
+  + `curl -s 'http://localhost:9200/_search?q=*&size=100' | jq`
+  + `curl -XPOST 'http://localhost:9200/dummy/basic' -d '{ "message" : "hello" }'`
+
 
   
