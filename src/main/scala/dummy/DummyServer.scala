@@ -18,5 +18,5 @@ class DummyServer extends HttpServer {
   }
 }
 
-object PrimesUIServerMain extends DummyServer {
+object DummyServerMain extends DummyServer {
 }

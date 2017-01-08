@@ -1,1 +1,25 @@
-<h1>{{message}}</h1>
+<h1>User message : <div id="the-message">{{message}}</div></h1>
+<div class="input-group">
+  <span class="input-group-addon" id="dummy-message">Your new message :</span>
+  <input type="text" class="form-control" placeholder="message" aria-describedby="dummy-message" id="dummy-message-input">
+</div>
+<script>
+  $('#dummy-message-input').change(
+		  function() {
+			    var newmsg =  $(this).val()
+			    
+          $.ajax(
+                  {
+                    url: '{{ctx.base}}/message',
+                    cache: false,
+                    type: 'POST',
+                    data: 'message='+newmsg
+                    }
+                  )
+	           .done(function( resp ) {
+	        	   $('#the-message').html(resp)
+	             });
+
+			  }
+		  )
+</script>

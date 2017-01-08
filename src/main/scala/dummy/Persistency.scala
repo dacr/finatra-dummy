@@ -18,7 +18,8 @@ import scala.concurrent.{Future => ScalaFuture}
 
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
-
+import com.sksamuel.elastic4s.indexes.RichIndexResponse
+import com.sksamuel.elastic4s.bulk.RichBulkResponse
 
 
 class Persistency {
@@ -27,37 +28,60 @@ class Persistency {
   
   val indexName=s"dummy-global"
   
-  def _deleteIndex(client:ElasticClient):TwitterFuture[DeleteIndexResponse] = {
+  def _deleteIndex(client:ElasticClient):ScalaFuture[DeleteIndexResponse] = {
+    logger.info(s"deleting index $indexName (we're in debug mode)")
     client.execute{deleteIndex(indexName)}
-  }.as[TwitterFuture[DeleteIndexResponse]]
+  }
   
-  def _createIndex(client:ElasticClient):TwitterFuture[CreateIndexResponse] = {
+  def _createIndex(client:ElasticClient):ScalaFuture[CreateIndexResponse] = {
+    logger.info(s"creating index $indexName")
     client.execute{
-      createIndex(indexName) mappings {
+      createIndex(indexName) mappings(
         mapping("params") as Seq(
             textField("message")
-            )
+            ),
         mapping("cells") as Seq(
             keywordField("name"),
             dateField("time"),
             doubleField("value")
         )
-      }
-    }.as[TwitterFuture[CreateIndexResponse]]
+      )
+    }
   }
   
-  def initializeIfNeeded(client:ElasticClient):Unit = {
+  def _populate(client:ElasticClient):ScalaFuture[RichBulkResponse] = {
+    logger.info(s"populating $indexName")
+    client.execute{
+      bulk {
+        indexInto(indexName / "params").fields("message" -> "default - refreshed").id(1)
+      }
+    }
+  }
+  
+  def initializeIfNeeded(client:ElasticClient) = {
     logger.info(s"Checking if some initialization is required at elasticsearch side")
-    client
+    val r = client
       .execute{ indexExists(indexName) }
-      .collect{ case idx => 
+      .flatMap{ idx => 
         if (idx.isExists) {
           logger.info(s"$indexName index already exists")
+          for {
+           di <-_deleteIndex(client)
+           ci <-_createIndex(client)
+          } yield {
+              _populate(client)
+          }
         } else {
           logger.info(s"$indexName index is missing")
-          _createIndex(client)
+          for {
+            ci <-_createIndex(client)
+          } yield {
+            _populate(client)
+          }
         }
       }
+    r.await
+    logger.info("initializeIfNeeded RESULT = "+r.value)
   }
   
   lazy val client = {
@@ -71,19 +95,18 @@ class Persistency {
     val elasticUri = ElasticsearchClientUri(uri)
     logger.info(s"Connecting to $elasticUri")
     val client = ElasticClient.transport(elasticUri)
-    initializeIfNeeded(client)    
+    initializeIfNeeded(client)   
     client
   }
   
   def getMessage:TwitterFuture[String] = {
-//    client
-//      .execute {get(1).from(s"$indexName/params")}
-//      .andThen {case Failure(err) => logger.error(s"couldn't get params", err)}
-//      .map(_.sourceField("message").toString)
-    TwitterFuture {"truc"}
+    client
+      .execute {get(1).from(indexName / "params")}
+      .map(_.sourceField("message").toString)
+      .as[TwitterFuture[String]]
   }
   
   def setMessage(msg:String) = client.execute {
-    update(1).in(s"$indexName/params").docAsUpsert("message" -> msg)
+    update(1).in(indexName / "params").docAsUpsert("message" -> msg)
   }
 }

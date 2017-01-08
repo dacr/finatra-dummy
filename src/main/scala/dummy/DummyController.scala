@@ -148,8 +148,14 @@ class DummyController extends Controller {
     }
   }
 
-  post(s"$base/message") {request:Request => 
-    pers.setMessage(request.getParam("message", "???"))
+  get(s"$base/message") {request:Request => 
+    pers.getMessage
+  }
+  
+  post(s"$base/message") {request:Request =>
+    val newmsg = request.getParam("message", "internal error").replaceAll("[^a-z0-9 _]", "")
+    pers.setMessage(newmsg)
+    newmsg
   }
   
   // -------------------------------------------------------------------------------------------------  
