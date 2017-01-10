@@ -157,6 +157,13 @@ class DummyController extends Controller {
     pers.setMessage(newmsg)
     newmsg
   }
+
+  get(s"$base/series/:id") { request:Request =>
+    val seriesName = request.params("id")
+    pers.getSeries(seriesName).map { result =>
+      result
+    }
+  }
   
   // -------------------------------------------------------------------------------------------------  
   for { res <- List("js", "css", "images") } {

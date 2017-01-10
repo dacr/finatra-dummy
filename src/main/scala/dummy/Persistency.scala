@@ -22,6 +22,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse
 import com.sksamuel.elastic4s.indexes.RichIndexResponse
 import com.sksamuel.elastic4s.bulk.RichBulkResponse
 import com.sksamuel.elastic4s.update.RichUpdateResponse
+import com.sksamuel.elastic4s.searches.RichSearchResponse
 
 
 
@@ -32,8 +33,9 @@ class Persistency {
   val now=System.currentTimeMillis()
   val sdf=new java.text.SimpleDateFormat("YYYY-MM-dd-H-m-s")
   
-  val paramIndexName="dummy-global"
-  val seriesIndexName="dummy-series-"+sdf.format(now)
+  val paramIndexName = "dummy-global"
+  val seriesIndexBaseName = "dummy-series-"
+  val seriesIndexName = seriesIndexBaseName+sdf.format(now)
   
   def _deleteIndex(implicit client:ElasticClient):ScalaFuture[DeleteIndexResponse] = {
     logger.info(s"deleting index $paramIndexName (we're in debug mode)")
@@ -120,7 +122,7 @@ class Persistency {
       }
   }
   
-  lazy val clientFuture:TwitterFuture[ElasticClient] = ScalaFuture {
+  val clientFuture:TwitterFuture[ElasticClient] = ScalaFuture {
     import scala.util.Properties._
     val elkUriConfigKey="ELK_URI"
     val defaultUri = "elasticsearch://localhost:9300"
@@ -134,6 +136,11 @@ class Persistency {
     client
   }.flatMap(cl => initializeIfNeeded(cl).map(_ => cl)).as[TwitterFuture[ElasticClient]] // to avoid await for init...
   
+  
+  //clientFuture.map(cl => TwitterFuture.result(_populateFakeSeries(cl)) )
+  
+  // ----------------------------------------------------------------------------------------------------------------------
+  
   def getMessage:TwitterFuture[String] = clientFuture.flatMap{ client=>
     client
       .execute {get(1).from(paramIndexName / "params")}
@@ -146,5 +153,12 @@ class Persistency {
         .execute {update(1).in(paramIndexName / "params").docAsUpsert("message" -> msg)}
         .as[TwitterFuture[RichUpdateResponse]]
   }
-  
+
+  // ----------------------------------------------------------------------------------------------------------------------
+
+  def getSeries(name:String) = clientFuture.flatMap{ client=>
+    client
+      .execute { search( seriesIndexBaseName+"*" ).types("series" ).query(s"name:$name") }
+      .as[TwitterFuture[RichSearchResponse]]
+  }
 }
