@@ -15,9 +15,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future => ScalaFuture}
 
 import java.net._
+import better.files._
+import better.files.Cmds._
+import java.io.{File => JavaFile}
+
+
+
 
 case class DummyContext(
-    base: String
+    base: String,
+    workspace:File
     )
 
 @Mustache("index")
@@ -90,7 +97,11 @@ class DummyController extends Controller {
     }
   }
   
-  val ctx = DummyContext(base2use)
+  val ctx = {
+    val workspace = file"/tmp/dummy"
+    mkdirs(workspace)
+    DummyContext(base2use, workspace)
+  }
   import ctx.base
   logger.info(s"Using context base $base")
   val pers = new Persistency
@@ -123,8 +134,20 @@ class DummyController extends Controller {
     info(request)
     request.multipart match {
       case Some(m) =>
-        info(m.files)
-        info(m.attributes)
+        info(m)
+        for {
+          files <- m.files.get("chosenfiles")
+          file <- files
+        } {
+          info("Processing uploaded file named : "+file.fileName)
+          file match {
+            case ondsk: com.twitter.finagle.http.exp.Multipart.OnDiskFileUpload =>
+              cp(ondsk.content.toScala, ctx.workspace / file.fileName)
+            case inmem: com.twitter.finagle.http.exp.Multipart.InMemoryFileUpload =>
+              val bytes = com.twitter.io.Buf.ByteArray.Owned.extract(inmem.content)
+              (ctx.workspace / file.fileName).writeBytes( bytes.toIterator)
+          }
+        }
       case None =>
     }
   }
@@ -133,7 +156,7 @@ class DummyController extends Controller {
   //case class Cell(time:Long, value:Double)
   case class Series(name:String, data:List[Tuple2[Long,Double]])
   
-  get(s"$base/myseries") { request:Request =>
+  get(s"$base/api/myseries") { request:Request =>
     val now = System.currentTimeMillis()
 
     val sampleData=1.to(1000).map(i=> now+i*1000 -> scala.math.random*10d).toList
@@ -142,23 +165,25 @@ class DummyController extends Controller {
   
   // -------------------------------------------------------------------------------------------------
 
-  get(s"$base/elkpart") {request:Request => 
+  // returns a html fragment to be insert into the DOM as soon as everything is ready
+  get(s"$base/sub/elkpart") {request:Request => 
     pers.getMessage map { msg:String =>
       ElkPartView(ctx, msg)
     }
   }
 
-  get(s"$base/message") {request:Request => 
+  // 
+  get(s"$base/api/message") {request:Request => 
     pers.getMessage
   }
   
-  post(s"$base/message") {request:Request =>
+  post(s"$base/api/message") {request:Request =>
     val newmsg = request.getParam("message", "internal error").replaceAll("[^a-z0-9 _]", "")
     pers.setMessage(newmsg)
     newmsg
   }
 
-  get(s"$base/series/:id") { request:Request =>
+  get(s"$base/api/series/:id") { request:Request =>
     val seriesName = request.params("id")
     pers.getSeries(seriesName).map { result =>
       result

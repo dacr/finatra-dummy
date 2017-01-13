@@ -44,7 +44,7 @@
         <script src="{{ctx.base}}/js/libs/dropzone.js"></script>
         <script>
           Dropzone.options.customDropzone = {
-            paramName: "thefile", // The name that will be used to transfer the file
+            paramName: "chosenfiles", // The param name that will be used to get transfered files
             maxFilesize: 500 // MB
           }
           //Dropzone.options.customDropzone = false;
@@ -107,7 +107,7 @@
           });
 
           
-          $.ajax({url: "{{ctx.base}}/myseries",cache: false,type:'GET',dataType:"json"})
+          $.ajax({url: "{{ctx.base}}/api/myseries",cache: false,type:'GET',dataType:"json"})
         	   .done(function( resp ) {
         		   //var chart = $('#mychart')
         	     console.log(resp)
@@ -122,7 +122,7 @@
       <div id="elk2js" class="tab-pane fade">
         <div id="elk2js_content"></div>
         <script>
-        $.ajax({url: "{{ctxbase}}/elkpart",cache: false,type:'GET',dataType:"html"})
+        $.ajax({url: "{{ctxbase}}/sub/elkpart",cache: false,type:'GET',dataType:"html"})
           .done(function( resp ) { $('#elk2js_content').html(resp) });
         </script>
       </div>

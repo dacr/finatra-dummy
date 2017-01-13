@@ -7,6 +7,7 @@ This a dummy project, to play with various technologies :
 * [dropzone](http://www.dropzonejs.com/)
 * [elasticsearch](https://www.elastic.co/fr/products/elasticsearch)
 * [elastic4s](https://github.com/sksamuel/elastic4s)
+* [better-files](https://github.com/pathikrit/better-files)
 
 ## quick starts
 
