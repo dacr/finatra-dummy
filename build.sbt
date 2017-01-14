@@ -11,9 +11,7 @@ javaOptions in run := Seq(
  "-Xms2g",
  "-Xmx2g",
  "-Xmn1000m",
- //"-XX:GCTimeRatio=50",
- //"-XX:SurvivorRatio=4",
- "-XX:+PerfDisableSharedMem", // Decrease the latency !!! 
+// "-XX:+PerfDisableSharedMem", // Decrease the latency !!! 
  "-XX:+UseConcMarkSweepGC",
  "-XX:+UseParNewGC",
  "-XX:+CMSParallelRemarkEnabled",
@@ -42,54 +40,18 @@ javaOptions in run := Seq(
  "-Dhazelcast.jmx=true"
 )
 
-/*
-javaOptions in run := Seq(
- "-Xms2g",
- "-Xmx2g",
- "-XX:+UseG1GC",
- "-XX:MaxGCPauseMillis=50",
- "-XX:G1HeapRegionSize=200m",
- "-XX:InitiatingHeapOccupancyPercent=75",
- "-XX:+ParallelRefProcEnabled",
- "-XX:+PerfDisableSharedMem",
- "-XX:+AggressiveOpts",
- "-XX:+OptimizeStringConcat",
- "-verbose:gc",
-// "-XX:+PrintGCDetails",
- "-XX:+PrintGCDateStamps",
- "-Xloggc:GC_finatra.log",
- "-Dcom.sun.management.jmxremote.port=2555",
- "-Dcom.sun.management.jmxremote.authenticate=false",
- "-Dcom.sun.management.jmxremote.ssl=false",
- "-Djava.net.preferIPv4Stack=true",
- "-Djava.net.preferIPv6Addresses=false",
- "-Dhazelcast.jmx=true"
-)
-*/
 
 libraryDependencies ++= Seq(
-  "com.twitter"            %% "finatra-http"                        % "2.6.0",
-  "com.twitter"            %% "bijection-util"                      % "0.9.4",
-  "com.sksamuel.elastic4s" %% "elastic4s-streams"                   % "5.1.4",
-  "com.github.pathikrit"   %% "better-files-akka"                   % "2.17.1",
-  "ch.qos.logback"         % "logback-classic"                      % "1.1.7",
-  "org.codehaus.janino"    % "janino"                               % "2.7.8" // Allow logback config file conditionals
+  "com.twitter"            %% "finatra-http"         % "2.7.0",
+  "com.sksamuel.elastic4s" %% "elastic4s-core"       % "5.1.5",
+  "com.github.pathikrit"   %% "better-files-akka"    % "2.17.1",
+  "ch.qos.logback"         % "logback-classic"       % "1.1.8",
+  "org.codehaus.janino"    % "janino"                % "3.0.6" // Allow logback config file conditionals
 ).map(
    _.exclude("org.scala-lang", "scala-compiler")
  //   .exclude("org.scala-lang", "scala-reflect")
 )
 
-/*
-resolvers ++= Seq(
-  Resolver.sonatypeRepo("releases"),
-  "Twitter Maven" at "https://maven.twttr.com"
-)
-
-assemblyMergeStrategy in assembly := {
-  case "BUILD" => MergeStrategy.discard
-  case other => MergeStrategy.defaultMergeStrategy(other)
-}
-*/
 
 sourceGenerators in Compile <+=
  (sourceManaged in Compile, version, name) map {

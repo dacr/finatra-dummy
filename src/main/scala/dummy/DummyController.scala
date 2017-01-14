@@ -7,12 +7,8 @@ import com.twitter.finatra.request.{ QueryParam, RouteParam }
 import com.twitter.finatra.response.Mustache
 import com.twitter.finatra.http.request.RequestUtils
 
-import com.twitter.bijection.Conversion._
-import com.twitter.bijection.twitter_util.UtilBijections.twitter2ScalaFuture
-import com.twitter.util.{Future => TwitterFuture}
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future => ScalaFuture}
+import scala.concurrent.Future
 
 import java.net._
 import better.files._

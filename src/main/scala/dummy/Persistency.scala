@@ -7,12 +7,8 @@ import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.analyzers._
 import scala.util.{Success,Failure,Try}
 
-import com.twitter.bijection.Conversion._
-import com.twitter.bijection.twitter_util.UtilBijections.twitter2ScalaFuture
-import com.twitter.util.{Future => TwitterFuture}
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future => ScalaFuture}
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 
@@ -37,12 +33,12 @@ class Persistency {
   val seriesIndexBaseName = "dummy-series-"
   val seriesIndexName = seriesIndexBaseName+sdf.format(now)
   
-  def _deleteIndex(implicit client:ElasticClient):ScalaFuture[DeleteIndexResponse] = {
+  def _deleteIndex(implicit client:ElasticClient):Future[DeleteIndexResponse] = {
     logger.info(s"deleting index $paramIndexName (we're in debug mode)")
     client.execute{deleteIndex(paramIndexName)}
   }
   
-  def _createIndex(implicit client:ElasticClient):ScalaFuture[List[CreateIndexResponse]] = {
+  def _createIndex(implicit client:ElasticClient):Future[List[CreateIndexResponse]] = {
     logger.info(s"creating index $paramIndexName")
     val paramIndex = client.execute{
       createIndex(paramIndexName) mappings(
@@ -61,7 +57,7 @@ class Persistency {
         )
       )
     }
-    ScalaFuture.sequence(paramIndex::seriesIndex::Nil)
+    Future.sequence(paramIndex::seriesIndex::Nil)
   }
   
 //  def _populate(implicit client:ElasticClient):ScalaFuture[List[RichBulkResponse]] = {
@@ -70,7 +66,7 @@ class Persistency {
 //    ScalaFuture.sequence(params::series)
 //  }
   
-  def _populateParams(implicit client:ElasticClient):ScalaFuture[RichBulkResponse] = {
+  def _populateParams(implicit client:ElasticClient):Future[RichBulkResponse] = {
     logger.info(s"populating $paramIndexName with params")
     val params = client.execute{
       bulk {
@@ -122,7 +118,7 @@ class Persistency {
       }
   }
   
-  val clientFuture:TwitterFuture[ElasticClient] = ScalaFuture {
+  val clientFuture:Future[ElasticClient] = Future {
     import scala.util.Properties._
     val elkUriConfigKey="ELK_URI"
     val defaultUri = "elasticsearch://localhost:9300"
@@ -134,24 +130,22 @@ class Persistency {
     logger.info(s"Connecting to $elasticUri")
     implicit val client = ElasticClient.transport(elasticUri)
     client
-  }.flatMap(cl => initializeIfNeeded(cl).map(_ => cl)).as[TwitterFuture[ElasticClient]] // to avoid await for init...
+  }.flatMap(cl => initializeIfNeeded(cl).map(_ => cl)) // to avoid await for init...
   
   
   //clientFuture.map(cl => TwitterFuture.result(_populateFakeSeries(cl)) )
   
   // ----------------------------------------------------------------------------------------------------------------------
   
-  def getMessage:TwitterFuture[String] = clientFuture.flatMap{ client=>
+  def getMessage:Future[String] = clientFuture.flatMap{ client=>
     client
       .execute {get(1).from(paramIndexName / "params")}
       .map(_.sourceField("message").toString)
-      .as[TwitterFuture[String]]
   }
   
   def setMessage(msg:String) = clientFuture.flatMap{ client=> 
       client
         .execute {update(1).in(paramIndexName / "params").docAsUpsert("message" -> msg)}
-        .as[TwitterFuture[RichUpdateResponse]]
   }
 
   // ----------------------------------------------------------------------------------------------------------------------
@@ -159,6 +153,5 @@ class Persistency {
   def getSeries(name:String) = clientFuture.flatMap{ client=>
     client
       .execute { search( seriesIndexBaseName+"*" ).types("series" ).query(s"name:$name") }
-      .as[TwitterFuture[RichSearchResponse]]
   }
 }
